@@ -1,0 +1,3 @@
+module Mule
+  # Your code goes here...
+end
