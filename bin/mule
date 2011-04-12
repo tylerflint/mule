@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+
+require 'mule'
+require 'optparse'
+
+options = {}
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: optparse.rb [options]"
+
+  opts.on("-c", "--config CONFIG", "Path to CONFIG file") do |c|
+    options[:config] = c
+  end
+end.parse!
+
+unless options[:config]
+  puts "\rMust specify config file"
+  exit
+end
+
+Mule::Grandmaster.new(options[:config]).start
