@@ -1,5 +1,5 @@
 module Mule
-  class JobMaster
+  class Jobmaster
       CHILDREN = []
 
       SIG_QUEUE = []
@@ -47,7 +47,7 @@ module Mule
       def reap_children(graceful=false)
         CHILDREN.each do |pid|
           begin
-            Process.kill((graceful): :QUIT ? :TERM , pid)
+            Process.kill((graceful)? :QUIT : :TERM , pid)
             CHILDREN.delete(pid)
           rescue Errno::ESRCH, Errno::ENOENT
             # do nothing, we don't care if were missing a pid that we're

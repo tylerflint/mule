@@ -51,7 +51,7 @@ module Mule
       CHILDREN.each do |pid|
         begin
           unless grant_amnesty.include?(pid)
-            Process.kill((graceful): :QUIT ? :TERM , pid)
+            Process.kill((graceful)? :QUIT : :TERM , pid)
             Process.detach(pid)
             CHILDREN.delete(pid)
           end

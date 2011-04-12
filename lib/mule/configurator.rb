@@ -14,6 +14,7 @@ module Mule
     
     def parse!
       instance_eval(config_content)
+      self
     end
     
     def config_content
