@@ -31,6 +31,7 @@ module Mule
     end
     
     def exec_children
+      change_working_dir
       @configurator.events[:before_fork].call
       @configurator.jobs.each do |job|
         pid = fork do
@@ -38,6 +39,12 @@ module Mule
         end
         CHILDREN << pid
       end
+    end
+    
+    def change_working_dir
+      dir = @configurator.get_working_directory
+      $:.push(dir) unless $:.include?(dir)
+      Dir.chdir(dir)
     end
     
     def reap_children(graceful=false)
