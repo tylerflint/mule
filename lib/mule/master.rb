@@ -1,8 +1,5 @@
 module Mule
   class Master
-    CHILDREN = []
-    
-    SIG_QUEUE = []
     
     QUEUE_SIGS = [:QUIT, :INT, :TERM]
     
@@ -10,21 +7,33 @@ module Mule
       @configurator = configurator
     end
     
+    def children
+      @children ||= []
+    end
+    
+    def sig_queue
+      @sig_queue ||= []
+    end
+    
     def start
+      puts "MULE: (#{Process.pid}) master starting"
+      exec_children
       # trap sigs
       QUEUE_SIGS.each do |sig|
-        trap(sig) {SIG_QUEUE << sig; wakeup}
+        trap(sig) {sig_queue << sig; wakeup}
       end
-      exec_children
       sleep
     end
     
     def wakeup
-      case SIG_QUEUE.shift
+      puts "MULE: (#{Process.pid}) master waking up"
+      case sig_queue.shift
       when :QUIT
+        puts "MULE: (#{Process.pid}) master received QUIT signal"
         reap_children(true)
         exit
       when :INT, :TERM
+        puts "MULE: (#{Process.pid}) master received TERM signal"
         reap_children
         exit
       end
@@ -35,9 +44,11 @@ module Mule
       @configurator.events[:before_fork].call
       @configurator.jobs.each do |job|
         pid = fork do
-          Jobmaster.new(@configurator, job).start
+          jobmaster = Jobmaster.new(@configurator, job)
+          jobmaster.clean
+          jobmaster.start
         end
-        CHILDREN << pid
+        children << pid
       end
     end
     
@@ -48,10 +59,10 @@ module Mule
     end
     
     def reap_children(graceful=false)
-      CHILDREN.each do |pid|
+      children.each do |pid|
         begin
           Process.kill((graceful)? :QUIT : :TERM , pid)
-          CHILDREN.delete(pid)
+          children.delete(pid)
         rescue Errno::ESRCH, Errno::ENOENT
           # do nothing, we don't care if were missing a pid that we're
           # trying to murder already
@@ -59,6 +70,12 @@ module Mule
       end
       # wait for all the children to die
       Process.waitall
+      puts "MULE: (#{Process.pid}) master killed jobmasters, retiring to the grave"
+    end
+    
+    def clean
+      children = []
+      sig_queue = []
     end
   end
 end
