@@ -60,12 +60,14 @@ module Mule
             log "jobmaster brutally murdering job worker"
           end
           Process.kill((graceful)? :QUIT : :TERM , pid)
-          children.delete(pid)
-        rescue Errno::ESRCH, Errno::ENOENT
+          sleep(0.1)
+        rescue Errno::ESRCH, Errno::ENOENT => e
           # do nothing, we don't care if were missing a pid that we're
           # trying to murder already
+          log "jobmaster error: #{e}"
         end
       end
+      children = []
       # wait for all the children to die
       Process.waitall
       log "jobmaster killed job workers, retiring to the grave"

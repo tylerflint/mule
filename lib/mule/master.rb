@@ -53,12 +53,13 @@ module Mule
       children.each do |pid|
         begin
           Process.kill((graceful)? :QUIT : :TERM , pid)
-          children.delete(pid)
+          sleep(0.1)
         rescue Errno::ESRCH, Errno::ENOENT
           # do nothing, we don't care if were missing a pid that we're
           # trying to murder already
         end
       end
+      children = []
       # wait for all the children to die
       Process.waitall
       log "master killed jobmasters, retiring to the grave"

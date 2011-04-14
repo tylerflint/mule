@@ -60,14 +60,16 @@ module Mule
         begin
           unless grant_amnesty.include?(pid)
             Process.kill((graceful)? :QUIT : :TERM , pid)
-            Process.detach(pid)
-            children.delete(pid)
+            sleep(0.1)
+            Process.detach(pid) if grant_amnesty.any?
           end
         rescue Errno::ESRCH, Errno::ENOENT
           # do nothing, we don't care if were missing a pid that we're
           # trying to murder already
         end
       end
+      children = grant_amnesty
+      Process.waitall unless grant_amnesty.any?
     end
     
     def clean
