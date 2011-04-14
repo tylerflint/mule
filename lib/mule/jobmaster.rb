@@ -44,10 +44,8 @@ module Mule
       job_content = File.read(@job.file)
       @job.workers.times do
         pid = fork do
-          log "job starting"
-          clean
-          @job.events[:after_fork].call
-          eval job_content
+          worker = Worker.new
+          worker.run(job_content)
         end
         children << pid
       end

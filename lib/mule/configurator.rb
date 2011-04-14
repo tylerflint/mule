@@ -10,7 +10,6 @@ module Mule
         :before_fork => Proc.new {},
         :after_fork  => Proc.new {}
       }
-      @working_directory = Dir.pwd
     end
     
     def parse!
@@ -21,14 +20,6 @@ module Mule
     def config_content
       raise Mule::Error::MissingConfig unless File.exists?(@config)
       File.read(@config)
-    end
-    
-    def working_directory(dir)
-      @working_directory = dir
-    end
-    
-    def get_working_directory
-      @working_directory
     end
     
     def add_job(&block)

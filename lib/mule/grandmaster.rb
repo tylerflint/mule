@@ -4,8 +4,8 @@ module Mule
     
     QUEUE_SIGS = [:QUIT, :INT, :TERM, :USR2]
     
-    def initialize(config_file)
-      @config_file = config_file
+    def initialize(options)
+      @config_file = options[:config]
     end
     
     def children

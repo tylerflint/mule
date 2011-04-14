@@ -11,6 +11,10 @@ OptionParser.new do |opts|
   opts.on("-c", "--config CONFIG", "Path to CONFIG file") do |c|
     options[:config] = c
   end
+  
+  opts.on("-w", "--working-dir", "Specify working directory. Defaults to current location") do |dir|
+    Dir.chdir(dir)
+  end
 end.parse!
 
 unless options[:config]
@@ -18,4 +22,4 @@ unless options[:config]
   exit
 end
 
-Mule::Grandmaster.new(options[:config]).start
+Mule::Grandmaster.new(options).start
