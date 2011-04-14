@@ -9,8 +9,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Tyler Flint"]
   s.email       = ["tylerflint@gmail.com"]
   s.homepage    = "http://rubygems.org/gems/mule"
-  s.summary     = %q{blabla}
-  s.description = %q{blabla...}
+  s.summary     = %q{tool for launching and reloading ruby jobs quickly and effeciently.}
+  s.description = %q{Tool for launching and reloading ruby jobs. Expects jobs to handle signals and cleanup before killing.}
 
   s.rubyforge_project = "mule"
 
