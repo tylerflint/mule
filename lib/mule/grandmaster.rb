@@ -1,5 +1,6 @@
 module Mule
   class Grandmaster
+    include Log
     
     QUEUE_SIGS = [:QUIT, :INT, :TERM, :USR2]
     
@@ -16,7 +17,7 @@ module Mule
     end
     
     def start
-      puts "MULE: (#{Process.pid}) grandmaster starting"
+      log "grandmaster starting"
       exec_child
       QUEUE_SIGS.each do |sig|
         trap(sig) {sig_queue << sig; wakeup}
@@ -39,18 +40,15 @@ module Mule
     end
     
     def wakeup
-      puts "MULE: (#{Process.pid}) grandmaster waking up"
       case sig_queue.shift
       when :INT, :TERM
-        puts "MULE: (#{Process.pid}) grandmaster received TERM signal"
+        log "grandmaster received TERM signal"
         reap_children
-        exit
       when :QUIT
-        puts "MULE: (#{Process.pid}) grandmaster received QUIT signal"
+        log "grandmaster received QUIT signal"
         reap_children(true)
-        exit
       when :USR2
-        puts "MULE: (#{Process.pid}) grandmaster received USR2 signal"
+        log "grandmaster received USR2 signal"
         new_child = exec_child
         reap_children(true, [new_child])
         sleep

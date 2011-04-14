@@ -1,5 +1,6 @@
 module Mule
   class Jobmaster
+    include Log
 
     QUEUE_SIGS = [:QUIT, :INT, :TERM]
 
@@ -17,7 +18,7 @@ module Mule
     end
 
     def start
-      puts "MULE: (#{Process.pid}) jobmaster starting"
+      log "jobmaster starting"
       exec_children
       # trap sigs
       QUEUE_SIGS.each do |sig|
@@ -27,16 +28,13 @@ module Mule
     end
 
     def wakeup
-      puts "MULE: (#{Process.pid}) jobmaster waking up"
       case sig_queue.shift
       when :QUIT
-        puts "MULE: (#{Process.pid}) jobmaster received QUIT signal"
+        log "jobmaster received QUIT signal"
         reap_children(true)
-        exit
       when :INT, :TERM
-        puts "MULE: (#{Process.pid}) jobmaster received TERM signal"
+        log "jobmaster received TERM signal"
         reap_children
-        exit
       end
     end
 
@@ -46,7 +44,7 @@ module Mule
       job_content = File.read(@job.file)
       @job.workers.times do
         pid = fork do
-          puts "MULE: (#{Process.pid}) job starting"
+          log "job starting"
           clean
           @job.events[:after_fork].call
           eval job_content
@@ -59,9 +57,9 @@ module Mule
       children.each do |pid|
         begin
           if graceful
-            puts "MULE: (#{Process.pid}) jobmaster gracefully killing job worker"
+            log "jobmaster gracefully killing job worker"
           else
-            puts "MULE: (#{Process.pid}) jobmaster brutally murdering job worker"
+            log "jobmaster brutally murdering job worker"
           end
           Process.kill((graceful)? :QUIT : :TERM , pid)
           children.delete(pid)
@@ -72,7 +70,7 @@ module Mule
       end
       # wait for all the children to die
       Process.waitall
-      puts "MULE: (#{Process.pid}) jobmaster killed job workers, retiring to the grave"
+      log "jobmaster killed job workers, retiring to the grave"
     end
     
     def clean

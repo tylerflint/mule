@@ -1,5 +1,6 @@
 module Mule
   class Master
+    include Log
     
     QUEUE_SIGS = [:QUIT, :INT, :TERM]
     
@@ -16,7 +17,7 @@ module Mule
     end
     
     def start
-      puts "MULE: (#{Process.pid}) master starting"
+      log "master starting"
       exec_children
       # trap sigs
       QUEUE_SIGS.each do |sig|
@@ -26,16 +27,13 @@ module Mule
     end
     
     def wakeup
-      puts "MULE: (#{Process.pid}) master waking up"
       case sig_queue.shift
       when :QUIT
-        puts "MULE: (#{Process.pid}) master received QUIT signal"
+        log "master received QUIT signal"
         reap_children(true)
-        exit
       when :INT, :TERM
-        puts "MULE: (#{Process.pid}) master received TERM signal"
+        log "master received TERM signal"
         reap_children
-        exit
       end
     end
     
@@ -70,7 +68,7 @@ module Mule
       end
       # wait for all the children to die
       Process.waitall
-      puts "MULE: (#{Process.pid}) master killed jobmasters, retiring to the grave"
+      log "master killed jobmasters, retiring to the grave"
     end
     
     def clean
