@@ -12,7 +12,7 @@ OptionParser.new do |opts|
     options[:config] = c
   end
   
-  opts.on("-w", "--working-dir", "Specify working directory. Defaults to current location") do |dir|
+  opts.on("-w", "--working-dir WORKING_DIR", "Specify working directory. Defaults to current location") do |dir|
     Dir.chdir(dir)
   end
 end.parse!
